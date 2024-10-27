@@ -12,9 +12,9 @@ from pyrogram.enums.parse_mode import ParseMode
 db = Database(Telegram.DATABASE_URL, Telegram.SESSION_NAME)
 
 @FileStream.on_message(filters.command("link") & filters.reply)
-async def link_handler(client: Client, message: Message):
+async def link_handler(bot: Client, message: Message):
     """Handle the link command when replying to a media file."""
-    await register_user(client, message)  # Register the user
+    await register_user(bot, message)  # Register the user
 
     reply_msg = message.reply_to_message
     if not reply_msg or not reply_msg.media:
