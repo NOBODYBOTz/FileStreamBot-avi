@@ -11,6 +11,32 @@ from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton
 from pyrogram.enums.parse_mode import ParseMode
 db = Database(Telegram.DATABASE_URL, Telegram.SESSION_NAME)
 
+@FileStream.on_message(filters.command("link") & filters.reply)
+async def link_handler(client: Client, message: Message):
+    """Handle the link command when replying to a media file."""
+    await register_user(client, message)  # Register the user
+
+    reply_msg = message.reply_to_message
+    if not reply_msg or not reply_msg.media:
+        await message.reply_text("⚠️ Please reply to a media file to generate a link.", quote=True)
+        return
+
+    if message.chat.type in ['group', 'supergroup']:
+        is_admin = await check_admin_privileges(client, message.chat.id)
+        if not is_admin:
+            await message.reply_text("🔒 The bot needs admin rights in this group to function properly.", quote=True)
+    else:
+        inserted_id = await db.add_file(get_file_info(message))
+        await get_file_ids(False, inserted_id, multi_clients, message)
+        reply_markup, stream_text = await gen_link(_id=inserted_id)
+        await message.reply_text(
+            text=stream_text,
+            parse_mode=ParseMode.HTML,
+            disable_web_page_preview=True,
+            reply_markup=reply_markup,
+            quote=True
+        )# Process the media file
+
 @FileStream.on_message(
     filters.private
     & (
