@@ -38,6 +38,14 @@ async def link_handler(bot: Client, message: Message):
             reply_markup=reply_markup,
             quote=True
         )
+    except FloodWait as e:
+        print(f"Sleeping for {str(e.value)}s")
+        await asyncio.sleep(e.value)
+        await bot.send_message(chat_id=Telegram.ULOG_CHANNEL,
+                               text=f"Gᴏᴛ FʟᴏᴏᴅWᴀɪᴛ ᴏғ {str(e.value)}s ғʀᴏᴍ [{message.from_user.first_name}](tg://user?id={message.from_user.id})\n\n**ᴜsᴇʀ ɪᴅ :** `{str(message.from_user.id)}`",
+                               disable_web_page_preview=True, parse_mode=ParseMode.MARKDOWN)
+
+
 
 @FileStream.on_message(
     filters.private
