@@ -13,8 +13,15 @@ db = Database(Telegram.DATABASE_URL, Telegram.SESSION_NAME)
 
 @FileStream.on_message(filters.command("link") & filters.reply)
 async def link_handler(bot: Client, message: Message):
-    """Handle the link command when replying to a media file."""
-    await register_user(bot, message)  # Register the user
+    if not await is_user_authorized(message):
+        return
+    if await is_user_banned(message):
+        return
+
+    await is_user_exist(bot, message)
+    if Telegram.FORCE_SUB:
+        if not await is_user_joined(bot, message):
+            return
 
     reply_msg = message.reply_to_message
     if not reply_msg or not reply_msg.media:
@@ -30,7 +37,7 @@ async def link_handler(bot: Client, message: Message):
             disable_web_page_preview=True,
             reply_markup=reply_markup,
             quote=True
-        )# Process the media file
+        )
 
 @FileStream.on_message(
     filters.private
