@@ -12,7 +12,7 @@ from pyrogram.enums.parse_mode import ParseMode
 db = Database(Telegram.DATABASE_URL, Telegram.SESSION_NAME)
 
 @FileStream.on_message(filters.command("link") & filters.reply)
-async def link_handler(bot: Client, message: Message, reply_msg):
+async def link_handler(bot: Client, message: Message):
     reply_msg = message.reply_to_message
     if not reply_msg or not reply_msg.media:
         await message.reply_text("⚠️ Please reply to a media file to generate a link.", quote=True)
