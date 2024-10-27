@@ -11,12 +11,11 @@ from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton
 from pyrogram.enums.parse_mode import ParseMode
 db = Database(Telegram.DATABASE_URL, Telegram.SESSION_NAME)
 
-@FileStream.on_message(filters.command("link") & filters.reply)
-async def link_handler(bot: Client, message: Message):
-    reply_msg = message.reply_to_message
-    if not reply_msg or not reply_msg.media:
-        await message.reply_text("⚠️ Please reply to a media file to generate a link.", quote=True)
-        return
+@FileStream.on_message(filters.command(["link"], prefixes="/") & filters.reply)
+async def gen_link(client, message: Message):
+    reply = message.reply_to_message
+    if not reply.media:
+        return await message.reply_text("Reply to a media to upload it to Cloud.")
     try:
         inserted_id = await db.add_file(get_file_info(message))
         await get_file_ids(False, inserted_id, multi_clients, message)
